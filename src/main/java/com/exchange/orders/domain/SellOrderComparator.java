@@ -8,6 +8,11 @@ public class SellOrderComparator implements Comparator<Order> {
    * The exchange follows a FirstInFirstOut Price-Time order-matching rule, which states that: "The
    * first order in the order-book at a price level is the first order matched. All orders at the
    * same price level are filled according to time priority".
+   *
+   * The Queue are specific to Stock Name, hence the ordering of orders are independent of Stock
+   * Names. In The application code, a Map<StockName, PriorityQueue>, hence a separate Queue for
+   * each stock
+   *
    */
 
   @Override

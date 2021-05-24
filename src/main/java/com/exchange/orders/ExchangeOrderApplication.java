@@ -32,6 +32,7 @@ public class ExchangeOrderApplication {
     try (BufferedReader bufferedReader = new BufferedReader(
         new FileReader(filePath))) {
 
+      log.info("Parsing input file={}", filePath);
       String line;
       while ((line = bufferedReader.readLine()) != null) {
         log.info("Parsing line={}", line);
@@ -66,6 +67,7 @@ public class ExchangeOrderApplication {
     order.setType(OrderType.valueOf(inputOrder[3].toUpperCase()));
     order.setPrice(new BigDecimal(inputOrder[4]));
     order.setQuantity(Long.parseLong(inputOrder[5]));
+    log.info("Order Created={}",order);
     return order;
 
   }

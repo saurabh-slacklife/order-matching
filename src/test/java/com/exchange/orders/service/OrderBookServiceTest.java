@@ -2,19 +2,19 @@ package com.exchange.orders.service;
 
 import com.exchange.orders.common.OrderType;
 import com.exchange.orders.domain.Order;
-import com.exchange.orders.domain.SellOrderComparator;
+import com.exchange.orders.errors.UnSupportedOrderType;
+import com.sun.security.auth.UnixNumericUserPrincipal;
 import java.math.BigDecimal;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.PriorityQueue;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-class BuyOrderStrategyTest {
+class OrderBookServiceTest {
 
   Order buyOrder;
   Order sellOrder;
@@ -44,27 +44,22 @@ class BuyOrderStrategyTest {
   }
 
   @Test
-  void whenNoSellOrderPresent_thenAddBuyOrderAndExit() {
-
-    BuyOrderStrategy buyOrderStrategy = new BuyOrderStrategy(
-        new ConcurrentHashMap<>());
-    final ConcurrentHashMap<String, PriorityQueue<Order>> sellOrderMap = new ConcurrentHashMap<>();
-    buyOrderStrategy.setSellOrderMap(sellOrderMap);
-    buyOrderStrategy.processOrder(buyOrder);
+  void whenValidBuyOrder_thenCreateBuyOrderStrategy() {
+    final OrderBookService orderBookService = new OrderBookService();
+    orderBookService.processOrder(buyOrder);
   }
 
   @Test
-  void whenSellOrderPresent_thenAddAndProcessBuyOrderAndExit() {
-
-    final PriorityQueue<Order> sellOrderQueue = new PriorityQueue<>(new SellOrderComparator());
-    sellOrderQueue.offer(sellOrder);
-
-    final ConcurrentHashMap<String, PriorityQueue<Order>> sellOrderMap = new ConcurrentHashMap<>();
-    sellOrderMap.put(sellOrder.getStockName(), sellOrderQueue);
-
-    BuyOrderStrategy buyOrderStrategy = new BuyOrderStrategy(new ConcurrentHashMap<>());
-
-    buyOrderStrategy.setSellOrderMap(sellOrderMap);
-    buyOrderStrategy.processOrder(buyOrder);
+  void whenValidSellOrder_thenCreateBuyOrderStrategy() {
+    final OrderBookService orderBookService = new OrderBookService();
+    orderBookService.processOrder(sellOrder);
   }
+
+  @Test
+  void whenValidOrderTransaction_thenProcessOrders() {
+    final OrderBookService orderBookService = new OrderBookService();
+    orderBookService.processOrder(buyOrder);
+    orderBookService.processOrder(sellOrder);
+  }
+
 }

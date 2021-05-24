@@ -34,32 +34,32 @@ public class BuyOrderStrategy implements IOrderStrategy<Order> {
   /**
    * Add and executes the order
    *
-   * @param order {@link Order}
+   * @param buyOrder {@link Order}
    */
 
   @Override
-  public void processOrder(@NonNull final Order order) {
-    if (this.addOrder(order)) {
-      log.info("Buy Order={} added for processing", order);
+  public void processOrder(@NonNull final Order buyOrder) {
+    if (this.addOrder(buyOrder)) {
+      log.info("Buy Order={} added for processing", buyOrder);
       lock.lock();
       try {
-        executeBuyOrder(order);
+        executeBuyOrder(buyOrder);
       } finally {
         lock.unlock();
       }
     }
   }
 
-  private boolean addOrder(@NonNull final Order order) {
-    if (!this.buyOrderMap.containsKey(order.getStockName())) {
-      this.buyOrderMap.put(order.getStockName(), new PriorityQueue<>(new BuyOrderComparator()));
+  private boolean addOrder(@NonNull final Order buyOrder) {
+    if (!this.buyOrderMap.containsKey(buyOrder.getStockName())) {
+      this.buyOrderMap.put(buyOrder.getStockName(), new PriorityQueue<>(new BuyOrderComparator()));
     }
 
 //    TODO Add persist Buy stock through Exchange repository.
 //     The implementation is omitted per the requirement
 //    this.exchangeOrderRepository.save(order);
 
-    return this.buyOrderMap.get(order.getStockName()).offer(order);
+    return this.buyOrderMap.get(buyOrder.getStockName()).offer(buyOrder);
   }
 
   /**
@@ -92,10 +92,10 @@ public class BuyOrderStrategy implements IOrderStrategy<Order> {
       Order sellOrder = sellOrdersQueue.poll();
 
       if (buyOrder.getQuantity() <= sellOrder.getQuantity()) {
-        handleCompleteMatch(buyOrder, sellOrder);
+        executeCompleteBuyOrderMatch(buyOrder, sellOrder);
         this.buyOrderMap.get(buyOrder.getStockName()).remove(buyOrder);
       } else {
-        handleAndUpdatePartialMatch(buyOrder, sellOrder);
+        executePartialBuyOrderMatch(buyOrder, sellOrder);
       }
 
       if (buyOrder.getQuantity() == 0) {
@@ -104,7 +104,7 @@ public class BuyOrderStrategy implements IOrderStrategy<Order> {
     }
   }
 
-  private void handleCompleteMatch(Order buyOrder, Order sellOrder) {
+  private void executeCompleteBuyOrderMatch(Order buyOrder, Order sellOrder) {
     log.info("Executing complete match - BuyOrder={} and SellOrder={}", buyOrder, sellOrder);
 
     if (sellOrder.getQuantity() != buyOrder.getQuantity()) {
@@ -126,7 +126,7 @@ public class BuyOrderStrategy implements IOrderStrategy<Order> {
     this.buyOrderMap.get(buyOrder.getStockName()).remove(buyOrder);
   }
 
-  private void handleAndUpdatePartialMatch(Order buyOrder, Order sellOrder) {
+  private void executePartialBuyOrderMatch(Order buyOrder, Order sellOrder) {
 
     long buyOrderQuantity = buyOrder.getQuantity();
 

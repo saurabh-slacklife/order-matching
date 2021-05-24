@@ -37,7 +37,7 @@ public class SellOrderStrategy implements IOrderStrategy<Order> {
       log.info("Sell Order={} added for processing", sellOrder);
       lock.lock();
       try {
-        executeBuyOrder(sellOrder);
+        executeSellOrder(sellOrder);
       } finally {
         lock.unlock();
       }
@@ -57,7 +57,7 @@ public class SellOrderStrategy implements IOrderStrategy<Order> {
     return this.sellOrderMap.get(sellOrder.getStockName()).offer(sellOrder);
   }
 
-  private void executeBuyOrder(Order sellOrder) {
+  private void executeSellOrder(Order sellOrder) {
     if (!this.buyOrderMap.containsKey(sellOrder.getStockName())) {
       log.info("There is no order for buy, hence can't sell");
       return;
